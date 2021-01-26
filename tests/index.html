@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        body {
+            color: #555;
+        }
+        label {
+            display: block;
+            font-size: 16px;
+            line-height: 22px;
+        }
+        input,textarea {
+            display: block;
+            width: 300px;
+            float: none;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        textarea {
+            resize: vertical;
+            height: 170px;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="" method="GET" id="my-contact-form">
+        <label for="name">Your Name</label>
+        <input id="name" type="text" name="name" placeholder="Enter your name">
+        <label for="email">Your email</label>
+        <input id="email" type="email" name="email" placeholder="Enter your email">
+        <label for="body">Message</label>
+        <textarea id="body" name="body" placeholder="Enter your message here"></textarea>
+        <div class="h-captcha" data-sitekey="8398bfb2-83c8-45fe-b3c8-a6cedbef3549"></div>
+        <input type="submit" value="Send">
+        <div id="form-message"></div>
+    </form>
+    <script src="https://hcaptcha.com/1/api.js" async defer></script>
+    <script type="text/javascript">
+        var endpoint = "https://nnmb1j35mg.execute-api.us-east-1.amazonaws.com/default/thinktutor";
+        function buildJsonFormData(form) {
+            const jsonFormData = {};
+            for (const pair of new FormData(form)) {
+                jsonFormData[pair[0]] = pair[1];
+            };
+            return jsonFormData;
+        };
+        var form = document.getElementById("my-contact-form");
+        var formMessage = document.getElementById("form-message");
+        form.onsubmit = function (event) {
+            event.preventDefault();
+            var formData = new buildJsonFormData(form);
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", endpoint, true);
+            xhr.onload = function (e) {
+                console.log(xhr);
+                var response = JSON.parse(xhr.response);
+                if (xhr.status === 200) {
+                    formMessage.innerHTML = "Success";
+                } else {
+                    formMessage.innerHTML = "Error: " + response.error;
+                }
+            };
+            xhr.setRequestHeader('Content-Type', 'text/plain');
+            xhr.send(JSON.stringify(formData));
+        };
+    </script>
+</body>
+
+</html>
