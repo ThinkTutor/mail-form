@@ -11,7 +11,7 @@ bcc_emails = os.environ["EMAILS"]
 # Use this url for hCaptcha
 hcURL = "https://hcaptcha.com/siteverify"
 # Use this url for mailgun
-mgURL = "https://api.mailgun.net/v3/mail.thinktutor.org/messages"
+mgURL = "https://api.mailgun.net/v3/thinktutor.org/messages"
 
 # Import the automatic email from res/formMail.txt
 with open("formmail.txt", "r") as myfile:
