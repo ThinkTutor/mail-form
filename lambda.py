@@ -61,5 +61,5 @@ def lambda_handler(event, context):
         )
         return {"statusCode": r.status, "body": r.data.decode("utf-8")}
     else:
-        return {"statusCode": h.status, "body": "captcha error"}
+        return {"statusCode": 400, "body": "Captcha validation failed"}
 
