@@ -8,6 +8,8 @@ mg_api = os.environ["MG_API"]
 h_captcha = os.environ["HC_API"]
 bcc_emails = os.environ["EMAILS"]
 
+# Use this (public) sitekey for hCaptcha
+hcKey = "8398bfb2-83c8-45fe-b3c8-a6cedbef3549"
 # Use this url for hCaptcha
 hcURL = "https://hcaptcha.com/siteverify"
 # Use this url for mailgun
@@ -27,7 +29,8 @@ def lambda_handler(event, context):
     http = urllib3.PoolManager()
     h_dict = {
         'secret': h_captcha,
-        'response': h_token
+        'response': h_token,
+        'sitekey': hcKey
     }
     h = http.request(
         method="POST",
