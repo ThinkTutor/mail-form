@@ -7,36 +7,106 @@
         body {
             color: #555;
         }
+
+        form {
+            margin: auto;
+            position: relative;
+            width: 300px;
+            border-radius: 4px;
+            margin-top: 40px;
+            padding: 20px;
+        }
+
         label {
             display: block;
             font-size: 16px;
             line-height: 22px;
         }
-        input,textarea {
+
+        input,
+        textarea {
             display: block;
             width: 300px;
             float: none;
+            font-size: 14px;
             margin-bottom: 5px;
             border-radius: 4px;
             border: 1px solid #ccc;
         }
+
+        input[type="submit"] {
+            background-color: #fafafa;
+            border: 1px solid #e0e0e0;
+            height: 36px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #f5f5f5;
+            border: 1px solid #c5c5c5;
+        }
+
         textarea {
             resize: vertical;
             height: 170px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #lock-modal {
+            background-color: black;
+            opacity: 0.6;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+        }
+
+        #loading-circle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 0.6s ease-in infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
 
 <body>
-    <form action="" method="GET" id="my-contact-form">
-        <label for="name">Your Name</label>
-        <input id="name" type="text" name="name" placeholder="Enter your name">
-        <label for="email">Your email</label>
-        <input id="email" type="email" name="email" placeholder="Enter your email">
+    <form id="my-contact-form" onsubmit="return false">
+        <label for="name">Your Name*</label>
+        <input id="name" type="text" name="name" placeholder="Enter your name" required>
+        <label for="email">Your email*</label>
+        <input id="email" type="email" name="email" placeholder="Enter your email" required>
         <label for="body">Message</label>
         <textarea id="body" name="body" placeholder="Enter your message here"></textarea>
         <div class="h-captcha" data-sitekey="8398bfb2-83c8-45fe-b3c8-a6cedbef3549"></div>
         <input type="submit" value="Send">
+        <div id="lock-modal" class="hidden">
+            <div id="loading-circle"></div>
+        </div>
         <div id="form-message"></div>
     </form>
     <script src="https://hcaptcha.com/1/api.js" async defer></script>
@@ -51,22 +121,35 @@
         };
         var form = document.getElementById("my-contact-form");
         var formMessage = document.getElementById("form-message");
+        var lockModal = document.getElementById("lock-modal");
         form.onsubmit = function (event) {
             event.preventDefault();
+            /* lock the form */
+            lockModal.classList.remove("hidden");
+            /* get data from form */
             var formData = new buildJsonFormData(form);
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", endpoint, true);
-            xhr.onload = function (e) {
-                console.log(xhr);
-                var response = JSON.parse(xhr.response);
-                if (xhr.status === 200) {
-                    formMessage.innerHTML = "Success";
-                } else {
-                    formMessage.innerHTML = "Error: " + response.error;
-                }
+            if (formData["h-captcha-response"] == "") {
+                formMessage.innerHTML = "Error: Please fill out Captcha";
+                lockModal.classList.add("hidden");
+                hcaptcha.reset();
+                hcaptcha.execute();
+            } else {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", endpoint, true);
+                xhr.onload = function (e) {
+                    console.log(xhr);
+                    var response = JSON.parse(xhr.response);
+                    if (xhr.status === 200) {
+                        formMessage.innerHTML = "Success";
+                    } else {
+                        formMessage.innerHTML = "Error: " + response.error;
+                    };
+                    lockModal.classList.add("hidden");
+                    hcaptcha.reset();
+                };
+                xhr.setRequestHeader('Content-Type', 'text/plain');
+                xhr.send(JSON.stringify(formData));
             };
-            xhr.setRequestHeader('Content-Type', 'text/plain');
-            xhr.send(JSON.stringify(formData));
         };
     </script>
 </body>
